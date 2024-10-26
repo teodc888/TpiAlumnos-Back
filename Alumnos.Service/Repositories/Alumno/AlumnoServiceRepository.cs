@@ -3,7 +3,9 @@ using Alumnos.Data.Repositories.GenericRepository;
 using Alumnos.Model.Models;
 using Alumnos.Service.Repositories.Carrera;
 using Alumnos.Service.Validation;
-
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Alumnos.Service.Repositories.Alumno
 {
@@ -18,7 +20,16 @@ namespace Alumnos.Service.Repositories.Alumno
         private readonly IGenericRepository<Genero> _repositoryGenero;
         private readonly ICarreraServiceRepository _carreraServiceRepository;
         private readonly AlumnoValidation alumnoValidation;
-        public AlumnoServiceRepository(IGenericRepository<Data.Data.Alumno> repository, IGenericRepository<Localidade> repositoryLocalidate, IGenericRepository<EstadoCivil> repositoryEstadoCivil, IGenericRepository<EstadoHabitacional> repositoryEstadoHabitacional, IGenericRepository<SituacionLaboral> repositorySituacionLaboral, IGenericRepository<Genero> repositoryGenero, IGenericRepository<TiposDoc> repositoryTipoDoc, ICarreraServiceRepository carreraServiceRepository)
+
+        public AlumnoServiceRepository(
+            IGenericRepository<Data.Data.Alumno> repository,
+            IGenericRepository<Localidade> repositoryLocalidate,
+            IGenericRepository<EstadoCivil> repositoryEstadoCivil,
+            IGenericRepository<EstadoHabitacional> repositoryEstadoHabitacional,
+            IGenericRepository<SituacionLaboral> repositorySituacionLaboral,
+            IGenericRepository<Genero> repositoryGenero,
+            IGenericRepository<TiposDoc> repositoryTipoDoc,
+            ICarreraServiceRepository carreraServiceRepository)
         {
             _repositoryAlumno = repository;
             alumnoValidation = new AlumnoValidation();
@@ -30,12 +41,13 @@ namespace Alumnos.Service.Repositories.Alumno
             _repositoryTipoDoc = repositoryTipoDoc;
             _carreraServiceRepository = carreraServiceRepository;
         }
-        public AlumnoModels GetAlumnoNombre(int legajo)
+
+        public async Task<AlumnoModels> GetAlumnoNombreAsync(int legajo)
         {
             try
             {
                 AlumnoModels alumnoModels = new AlumnoModels();
-                Data.Data.Alumno alumnoEncontrado = (Data.Data.Alumno)_repositoryAlumno.GetById(legajo);
+                Data.Data.Alumno alumnoEncontrado = await _repositoryAlumno.GetByIdAsync(legajo);
 
                 if (!alumnoValidation.Validate(alumnoEncontrado))
                 {
@@ -49,61 +61,61 @@ namespace Alumnos.Service.Repositories.Alumno
                 alumnoModels.Direccion = alumnoEncontrado.Direccion;
                 alumnoModels.FechaNacimiento = ((DateTime)alumnoEncontrado.FechaNac).ToString("dd/MM/yyyy");
 
-                TiposDoc tiposDoc = (TiposDoc)_repositoryTipoDoc.GetById(alumnoEncontrado.TipoDoc);
+                TiposDoc tiposDoc = await _repositoryTipoDoc.GetByIdAsync(alumnoEncontrado.TipoDoc);
                 alumnoModels.TipoDocumento = tiposDoc.TipoDoc;
 
-                Localidade localidad = (Localidade)_repositoryLocalidate.GetById(alumnoEncontrado.Localidad);
+                Localidade localidad = await _repositoryLocalidate.GetByIdAsync(alumnoEncontrado.Localidad);
                 alumnoModels.Localidad = localidad.Nombre;
 
-                EstadoCivil estadoCivil = (EstadoCivil)_repositoryEstadoCivil.GetById(alumnoEncontrado.EstadoCivil);
+                EstadoCivil estadoCivil = await _repositoryEstadoCivil.GetByIdAsync(alumnoEncontrado.EstadoCivil);
                 alumnoModels.EstadoCivil = estadoCivil.EstadoCivil1;
 
-                EstadoHabitacional estadoHabitacional = (EstadoHabitacional)_repositoryEstadoHabitacional.GetById(alumnoEncontrado.EstadoHabit);
+                EstadoHabitacional estadoHabitacional = await _repositoryEstadoHabitacional.GetByIdAsync(alumnoEncontrado.EstadoHabit);
                 alumnoModels.EstadoHabitacional = estadoHabitacional.EstadoHabitacional1;
 
-                SituacionLaboral situacionLaboral = (SituacionLaboral)_repositorySituacionLaboral.GetById(alumnoEncontrado.SituacLab);
+                SituacionLaboral situacionLaboral = await _repositorySituacionLaboral.GetByIdAsync(alumnoEncontrado.SituacLab);
                 alumnoModels.SituacionLaboral = situacionLaboral.SituacionLab;
 
-                Genero genero = (Genero)_repositoryGenero.GetById(alumnoEncontrado.Genero);
+                Genero genero = await _repositoryGenero.GetByIdAsync(alumnoEncontrado.Genero);
                 alumnoModels.Genero = genero.Genero1;
 
                 return alumnoModels;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception(ex.ToString());
             }
         }
-        public InfoAlumnoModels GetAlumnoInfo(int legajo)
+
+        public async Task<InfoAlumnoModels> GetAlumnoInfoAsync(int legajo)
         {
             try
             {
-                InfoAlumnoModels infoAlumnoModels = new InfoAlumnoModels();
-                Data.Data.Alumno alumnoEncontrado = (Data.Data.Alumno)_repositoryAlumno.GetById(legajo);
+                Data.Data.Alumno alumnoEncontrado = await _repositoryAlumno.GetByIdAsync(legajo);
 
                 if (!alumnoValidation.Validate(alumnoEncontrado))
                 {
                     throw new Exception("Alumno Invalido");
                 }
 
-                infoAlumnoModels = _carreraServiceRepository.GetCarreraInfoUser(alumnoEncontrado.Legajo);
+                InfoAlumnoModels infoAlumnoModels = await _carreraServiceRepository.GetCarreraInfoUserAsync(alumnoEncontrado.Legajo);
 
-                if(infoAlumnoModels == null)
+                if (infoAlumnoModels == null)
                 {
                     throw new Exception("Informacion del alumno invalida");
                 }
 
                 return infoAlumnoModels;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception(ex.ToString());
             }
         }
 
-        public List<Data.Data.Alumno> GetAlumnos()
+        public async Task<List<Data.Data.Alumno>> GetAlumnosAsync()
         {
-            return (List<Data.Data.Alumno>)_repositoryAlumno.GetAll();
+            return (List<Data.Data.Alumno>)await _repositoryAlumno.GetAllAsync();
         }
     }
 }

@@ -3,9 +3,6 @@ using Alumnos.Data.Repositories.Class;
 using Alumnos.Data.Repositories.GenericRepository;
 using Alumnos.Model.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Alumnos.Service.Repositories.Carrera
@@ -38,35 +35,34 @@ namespace Alumnos.Service.Repositories.Carrera
             _repositoryInscripcionACursado = repositoryInscripcionACursado;
         }
 
-        public InfoAlumnoModels GetCarreraInfoUser(int legajo)
+        public async Task<InfoAlumnoModels> GetCarreraInfoUserAsync(int legajo)
         {
             try
             {
-                InfoAlumnoModels infoAlumnoModels = new InfoAlumnoModels();
-                infoAlumnoModels.Legajo = legajo;
+                InfoAlumnoModels infoAlumnoModels = new InfoAlumnoModels { Legajo = legajo };
 
-                InscripcionACarrera inscripcionACarrera = (InscripcionACarrera)_repositoryInscripcionACarrera.GetInscripcionCarreraLegajo(legajo);
-                infoAlumnoModels.FechaInscripcionCursado = ((DateOnly)inscripcionACarrera.Fecha).ToString("dd/MM/yyyy");
+                InscripcionACarrera inscripcionACarrera = await _repositoryInscripcionACarrera.GetInscripcionCarreraLegajoAsync(legajo);
+                infoAlumnoModels.FechaInscripcionCursado = inscripcionACarrera.Fecha.ToString("dd/MM/yyyy");
 
-                Materiasxcarrera materiasxcarrera = (Materiasxcarrera)_repositoryMateriaXCarrera.GetByMateriaXCarreraIdCarrera(inscripcionACarrera.Carrera);
-                MateriasXCursado materiasXCursado = (MateriasXCursado)_repositoryMateriasXCursado.GetById(materiasxcarrera.Materia);
+                Materiasxcarrera materiasxcarrera = await _repositoryMateriaXCarrera.GetByMateriaXCarreraIdCarreraAsync(inscripcionACarrera.Carrera);
+                MateriasXCursado materiasXCursado = await _repositoryMateriasXCursado.GetByIdAsync(materiasxcarrera.Materia);
 
-                Data.Data.Carrera carrera = (Data.Data.Carrera)_repositoryCarrera.GetById(inscripcionACarrera.Carrera);
+                Data.Data.Carrera carrera = await _repositoryCarrera.GetByIdAsync(inscripcionACarrera.Carrera);
                 infoAlumnoModels.Carrera = carrera.Carrera1;
 
-                Materia materia = (Materia)_repositoryMateria.GetById(materiasxcarrera.Materia);
+                Materia materia = await _repositoryMateria.GetByIdAsync(materiasxcarrera.Materia);
                 infoAlumnoModels.Materia = materia.Materia1;
 
-                TiposMateria tiposMateria = (TiposMateria)_repositoryTiposMateria.GetById(materia.TipoMateria);
+                TiposMateria tiposMateria = await _repositoryTiposMateria.GetByIdAsync(materia.TipoMateria);
                 infoAlumnoModels.TipoMateria = tiposMateria.TipoMateria;
 
-                InscripcionACursado inscripcionACursado = (InscripcionACursado)_repositoryInscripcionACursado.GetById(materiasXCursado.InscripCursado);
-                infoAlumnoModels.FechaInscripcionCursado = ((DateOnly)inscripcionACursado.Fecha).ToString("dd/MM/yyyy");
+                InscripcionACursado inscripcionACursado = await _repositoryInscripcionACursado.GetByIdAsync(materiasXCursado.InscripCursado);
+                infoAlumnoModels.FechaInscripcionCursado = inscripcionACursado.Fecha.ToString("dd/MM/yyyy");
 
                 return infoAlumnoModels;
-
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 throw new Exception(ex.ToString());
             }
         }

@@ -1,10 +1,5 @@
 ﻿using Alumnos.Data.Data;
-using Alumnos.Data.Repositories.GenericRepository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Alumnos.Data.Repositories.Class
 {
@@ -12,12 +7,11 @@ namespace Alumnos.Data.Repositories.Class
     {
         public MateriasxcarreraRepository(TpiDatosContext context) : base(context)
         {
-
         }
 
-        public Materiasxcarrera GetByMateriaXCarreraIdCarrera(int carrera)
+        public async Task<Materiasxcarrera> GetByMateriaXCarreraIdCarreraAsync(int carrera)
         {
-            return _dbSet.FirstOrDefault(p => p.Carrera == carrera);
+            return await _dbSet.FirstOrDefaultAsync(p => p.Carrera == carrera);
         }
     }
 }

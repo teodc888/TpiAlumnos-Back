@@ -9,6 +9,6 @@ namespace Alumnos.Service.Repositories.Carrera
 {
     public interface ICarreraServiceRepository
     {
-        InfoAlumnoModels GetCarreraInfoUser(int legajo);
+        Task<InfoAlumnoModels> GetCarreraInfoUserAsync(int legajo);
     }
 }

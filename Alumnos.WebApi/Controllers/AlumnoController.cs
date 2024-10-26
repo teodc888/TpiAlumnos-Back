@@ -1,36 +1,40 @@
 ﻿using Alumnos.Service.Repositories.Alumno;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Alumnos.WebApi.Controllers
 {
     [ApiController]
+    [Route("v1/api/[controller]")]
     public class AlumnoController : ControllerBase
     {
         private readonly IAlumnoServiceRepository _repository;
-        public AlumnoController(IAlumnoServiceRepository repository) {
+
+        public AlumnoController(IAlumnoServiceRepository repository)
+        {
             _repository = repository;
         }
 
-        [HttpGet("api/[controller]")]
-        public IActionResult getAlumno([FromQuery]int legajo)
+        [HttpGet]
+        public async Task<IActionResult> GetAlumno([FromQuery] int legajo)
         {
             try
             {
-                return Ok(_repository.GetAlumnoNombre(legajo));
+                var alumno = await _repository.GetAlumnoNombreAsync(legajo);
+                return Ok(alumno);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.ToString());
             }
         }
 
-        [HttpGet("api/[controller]/info")]
-        public IActionResult getAlumnoInfo([FromQuery] int legajo)
+        [HttpGet("info")]
+        public async Task<IActionResult> GetAlumnoInfo([FromQuery] int legajo)
         {
             try
             {
-                return Ok(_repository.GetAlumnoInfo(legajo));
+                var alumnoInfo = await _repository.GetAlumnoInfoAsync(legajo);
+                return Ok(alumnoInfo);
             }
             catch (Exception ex)
             {

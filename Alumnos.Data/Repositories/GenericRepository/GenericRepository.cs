@@ -1,57 +1,51 @@
 ﻿using Alumnos.Data.Data;
+using Alumnos.Data.Repositories.GenericRepository;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace Alumnos.Data.Repositories.GenericRepository
+public class GenericRepository<T> : IGenericRepository<T> where T : class
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : class
+    protected readonly TpiDatosContext _context;
+    protected readonly DbSet<T> _dbSet;
+
+    public GenericRepository(TpiDatosContext context)
     {
-        protected readonly TpiDatosContext _context;
-        protected readonly DbSet<T> _dbSet;
+        _context = context;
+        _dbSet = context.Set<T>();
+    }
 
-        public GenericRepository(TpiDatosContext context)
-        {
-            _context = context;
-            _dbSet = context.Set<T>();
-        }
+    public async Task<IEnumerable<T>> GetAllAsync()
+    {
+        return await _dbSet.ToListAsync();
+    }
 
-        public IEnumerable<T> GetAll()
-        {
-            return _dbSet.ToList();
-        }
+    public async Task<T> GetByIdAsync(object id)
+    {
+        return await _dbSet.FindAsync(id);
+    }
 
-        public T GetById(object id)
-        {
-            return _dbSet.Find(id);
-        }
+    public async Task InsertAsync(T entity)
+    {
+        await _dbSet.AddAsync(entity);
+    }
 
-        public void Insert(T entity)
-        {
-            _dbSet.Add(entity);
-        }
+    public async Task UpdateAsync(T entity)
+    {
+        _context.Entry(entity).State = EntityState.Modified;
+    }
 
-        public void Update(T entity)
+    public async Task DeleteAsync(object id)
+    {
+        T entity = await _dbSet.FindAsync(id);
+        if (entity != null)
         {
-            _context.Entry(entity).State = EntityState.Modified;
-        }
-
-        public void Delete(object id)
-        {
-            T entity = _dbSet.Find(id);
-            if (entity != null)
-            {
-                _dbSet.Remove(entity);
-            }
-        }
-
-        public void Save()
-        {
-            _context.SaveChanges();
+            _dbSet.Remove(entity);
         }
     }
 
+    public async Task SaveAsync()
+    {
+        await _context.SaveChangesAsync();
+    }
 }
