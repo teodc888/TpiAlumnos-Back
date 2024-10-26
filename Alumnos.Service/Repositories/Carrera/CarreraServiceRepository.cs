@@ -1,4 +1,5 @@
 ﻿using Alumnos.Data.Data;
+using Alumnos.Data.Repositories.Carrera;
 using Alumnos.Data.Repositories.Class;
 using Alumnos.Data.Repositories.GenericRepository;
 using Alumnos.Model.Models;
@@ -16,6 +17,7 @@ namespace Alumnos.Service.Repositories.Carrera
         private readonly IGenericRepository<TiposMateria> _repositoryTiposMateria;
         private readonly IGenericRepository<MateriasXCursado> _repositoryMateriasXCursado;
         private readonly IGenericRepository<InscripcionACursado> _repositoryInscripcionACursado;
+        private readonly IInfoAlumnoRepository _infoAlumnoRepository;
 
         public CarreraServiceRepository(
             InscripcionACarreraRepository repositoryInscripcionACarrera,
@@ -24,7 +26,9 @@ namespace Alumnos.Service.Repositories.Carrera
             IGenericRepository<Materia> repositoryMateria,
             IGenericRepository<TiposMateria> repositoryTiposMateria,
             IGenericRepository<MateriasXCursado> repositoryMateriasXCursado,
-            IGenericRepository<InscripcionACursado> repositoryInscripcionACursado)
+            IGenericRepository<InscripcionACursado> repositoryInscripcionACursado,
+            IInfoAlumnoRepository infoAlumnoRepository
+            )
         {
             _repositoryInscripcionACarrera = repositoryInscripcionACarrera;
             _repositoryCarrera = repositoryCarrera;
@@ -33,33 +37,30 @@ namespace Alumnos.Service.Repositories.Carrera
             _repositoryTiposMateria = repositoryTiposMateria;
             _repositoryMateriasXCursado = repositoryMateriasXCursado;
             _repositoryInscripcionACursado = repositoryInscripcionACursado;
+            _infoAlumnoRepository = infoAlumnoRepository;
         }
 
-        public async Task<InfoAlumnoModels> GetCarreraInfoUserAsync(int legajo)
+        public async Task<List<InfoAlumnoModels>> GetCarreraInfoUserAsync(int legajo)
         {
             try
             {
-                InfoAlumnoModels infoAlumnoModels = new InfoAlumnoModels { Legajo = legajo };
+                List<InfoAlumnoModels> list = await _infoAlumnoRepository.GetCarreraInfoUserAsync(legajo);
 
-                InscripcionACarrera inscripcionACarrera = await _repositoryInscripcionACarrera.GetInscripcionCarreraLegajoAsync(legajo);
-                infoAlumnoModels.FechaInscripcionCursado = inscripcionACarrera.Fecha.ToString("dd/MM/yyyy");
+                return list;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+        }
 
-                Materiasxcarrera materiasxcarrera = await _repositoryMateriaXCarrera.GetByMateriaXCarreraIdCarreraAsync(inscripcionACarrera.Carrera);
-                MateriasXCursado materiasXCursado = await _repositoryMateriasXCursado.GetByIdAsync(materiasxcarrera.Materia);
+        public async Task<List<InfoAlumnoNotasModls>> GetCarreraInfoNotaUserAsync(int legajo)
+        {
+            try
+            {
+                List<InfoAlumnoNotasModls> list = await _infoAlumnoRepository.GetCarreraNotasInfoAsync(legajo);
 
-                Data.Data.Carrera carrera = await _repositoryCarrera.GetByIdAsync(inscripcionACarrera.Carrera);
-                infoAlumnoModels.Carrera = carrera.Carrera1;
-
-                Materia materia = await _repositoryMateria.GetByIdAsync(materiasxcarrera.Materia);
-                infoAlumnoModels.Materia = materia.Materia1;
-
-                TiposMateria tiposMateria = await _repositoryTiposMateria.GetByIdAsync(materia.TipoMateria);
-                infoAlumnoModels.TipoMateria = tiposMateria.TipoMateria;
-
-                InscripcionACursado inscripcionACursado = await _repositoryInscripcionACursado.GetByIdAsync(materiasXCursado.InscripCursado);
-                infoAlumnoModels.FechaInscripcionCursado = inscripcionACursado.Fecha.ToString("dd/MM/yyyy");
-
-                return infoAlumnoModels;
+                return list;
             }
             catch (Exception ex)
             {

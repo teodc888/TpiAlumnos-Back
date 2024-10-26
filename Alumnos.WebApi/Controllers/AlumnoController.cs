@@ -41,5 +41,19 @@ namespace Alumnos.WebApi.Controllers
                 return BadRequest(ex.ToString());
             }
         }
+
+        [HttpGet("info/notas")]
+        public async Task<IActionResult> GetAlumnosInfoNota([FromQuery] int legajo)
+        {
+            try
+            {
+                var alumnoInfo = await _repository.GetAlumnoInfoNotaAsync(legajo);
+                return Ok(alumnoInfo);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.ToString());
+            }
+        }
     }
 }

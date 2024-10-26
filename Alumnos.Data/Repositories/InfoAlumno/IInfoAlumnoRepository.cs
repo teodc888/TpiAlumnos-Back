@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Alumnos.Service.Repositories.Carrera
+namespace Alumnos.Data.Repositories.Carrera
 {
-    public interface ICarreraServiceRepository
+    public interface IInfoAlumnoRepository
     {
         Task<List<InfoAlumnoModels>> GetCarreraInfoUserAsync(int legajo);
-        Task<List<InfoAlumnoNotasModls>> GetCarreraInfoNotaUserAsync(int legajo);
+        Task<List<InfoAlumnoNotasModls>> GetCarreraNotasInfoAsync(int legajo);
     }
 }

@@ -15,4 +15,14 @@ namespace Alumnos.Model.Models
         public string FechaInscripcionCursado { get; set; }
         public string FechaInscripcionMateria { get; set; }
     }
+
+    public class InfoAlumnoNotasModls
+    {
+        public int Legajo { get; set; }
+        public string Curso { get; set; }
+        public string Estado { get; set; }
+        public string Materia { get; set; }
+        public string Nota { get; set; }
+        public DateOnly? FechaCursado { get; set; }
+    }
 }

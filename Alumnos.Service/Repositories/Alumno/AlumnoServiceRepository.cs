@@ -87,7 +87,7 @@ namespace Alumnos.Service.Repositories.Alumno
             }
         }
 
-        public async Task<InfoAlumnoModels> GetAlumnoInfoAsync(int legajo)
+        public async Task<List<InfoAlumnoModels>> GetAlumnoInfoAsync(int legajo)
         {
             try
             {
@@ -98,7 +98,33 @@ namespace Alumnos.Service.Repositories.Alumno
                     throw new Exception("Alumno Invalido");
                 }
 
-                InfoAlumnoModels infoAlumnoModels = await _carreraServiceRepository.GetCarreraInfoUserAsync(alumnoEncontrado.Legajo);
+                List<InfoAlumnoModels> infoAlumnoModels = await _carreraServiceRepository.GetCarreraInfoUserAsync(alumnoEncontrado.Legajo);
+
+                if (infoAlumnoModels == null)
+                {
+                    throw new Exception("Informacion del alumno invalida");
+                }
+
+                return infoAlumnoModels;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+        }
+
+        public async Task<List<InfoAlumnoNotasModls>> GetAlumnoInfoNotaAsync(int legajo)
+        {
+            try
+            {
+                Data.Data.Alumno alumnoEncontrado = await _repositoryAlumno.GetByIdAsync(legajo);
+
+                if (!alumnoValidation.Validate(alumnoEncontrado))
+                {
+                    throw new Exception("Alumno Invalido");
+                }
+
+                List<InfoAlumnoNotasModls> infoAlumnoModels = await _carreraServiceRepository.GetCarreraInfoNotaUserAsync(alumnoEncontrado.Legajo);
 
                 if (infoAlumnoModels == null)
                 {

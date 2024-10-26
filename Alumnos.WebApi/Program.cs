@@ -1,4 +1,5 @@
 using Alumnos.Data.Data;
+using Alumnos.Data.Repositories.Carrera;
 using Alumnos.Data.Repositories.Class;
 using Alumnos.Data.Repositories.GenericRepository;
 using Alumnos.Service.Repositories.Alumno;
@@ -19,8 +20,10 @@ builder.Services.AddDbContext<TpiDatosContext>(optionsAction => optionsAction.Us
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IAlumnoServiceRepository, AlumnoServiceRepository>();
 builder.Services.AddScoped<ICarreraServiceRepository, CarreraServiceRepository>();
+builder.Services.AddScoped<IInfoAlumnoRepository, InfoAlumnoRepository>();
 builder.Services.AddScoped<InscripcionACarreraRepository>();
 builder.Services.AddScoped<MateriasxcarreraRepository>();
+
 
 
 
