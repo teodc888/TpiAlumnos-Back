@@ -9,9 +9,9 @@ namespace Alumnos.Data.Repositories.Class
         {
         }
 
-        public async Task<Materiasxcarrera> GetByMateriaXCarreraIdCarreraAsync(int carrera)
+        public async Task<List<Materiasxcarrera>> GetByMateriaXCarreraIdLegajoAsync(int legajo)
         {
-            return await _dbSet.FirstOrDefaultAsync(p => p.Carrera == carrera);
+            return await _dbSet.Where(p => p.DocenteACargo == legajo).ToListAsync();
         }
     }
 }

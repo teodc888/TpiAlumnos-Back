@@ -4,6 +4,7 @@ using Alumnos.Data.Repositories.Class;
 using Alumnos.Data.Repositories.GenericRepository;
 using Alumnos.Service.Repositories.Alumno;
 using Alumnos.Service.Repositories.Carrera;
+using Alumnos.Service.Repositories.Docente;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,14 +20,12 @@ builder.Services.AddDbContext<TpiDatosContext>(optionsAction => optionsAction.Us
 // Registrar el repositorio genérico
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IAlumnoServiceRepository, AlumnoServiceRepository>();
+builder.Services.AddScoped<IDocenteServiceRepository, DocenteServiceRepository>();
 builder.Services.AddScoped<ICarreraServiceRepository, CarreraServiceRepository>();
 builder.Services.AddScoped<IInfoAlumnoRepository, InfoAlumnoRepository>();
+builder.Services.AddScoped<DocenteXTribunalesRepository>();
 builder.Services.AddScoped<InscripcionACarreraRepository>();
 builder.Services.AddScoped<MateriasxcarreraRepository>();
-
-
-
-
 
 var app = builder.Build();
 
