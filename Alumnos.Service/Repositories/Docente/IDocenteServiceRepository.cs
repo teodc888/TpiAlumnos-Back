@@ -10,6 +10,7 @@ namespace Alumnos.Service.Repositories.Docente
     public interface IDocenteServiceRepository 
     {
         Task<DocenteModels> GetDocente(int legajo);
+        Task<InfoDocenteModels> GetInfoDocente(int legajo);
         Task<List<TribunalModels>> GetTribunalDocente(int legajo);
         Task<List<MateriaModels>> GetMateriaDocente(int legajo);
     }

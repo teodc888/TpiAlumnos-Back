@@ -1,6 +1,7 @@
 ﻿using Alumnos.Data.Data;
 using Alumnos.Data.Repositories.Class;
 using Alumnos.Data.Repositories.GenericRepository;
+using Alumnos.Data.Repositories.InfoDocente;
 using Alumnos.Model.Models;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,7 @@ namespace Alumnos.Service.Repositories.Docente
         private readonly IGenericRepository<Tribunale> _repositoryTribunal;
         private readonly IGenericRepository<Materia> _repositoryMateria;
         private readonly IGenericRepository<Data.Data.Carrera> _repositoryCarrera;
+        private readonly IInfoDocenteRepository _infoDocenteRepository;
         private readonly DocenteXTribunalesRepository _docenteXTribunalesRepository;
         private readonly MateriasxcarreraRepository _materiasxcarreraRepository;
         public DocenteServiceRepository(
@@ -35,6 +37,7 @@ namespace Alumnos.Service.Repositories.Docente
             IGenericRepository<Tribunale> repositoryTribunal,
             IGenericRepository<Materia> repositoryMateria,
             IGenericRepository<Data.Data.Carrera> repositoryCarrera,
+            IInfoDocenteRepository infoDocenteRepository,
             DocenteXTribunalesRepository docenteXTribunalesRepository,
             MateriasxcarreraRepository materiasxcarreraRepository)
         {
@@ -48,6 +51,7 @@ namespace Alumnos.Service.Repositories.Docente
             _repositoryTribunal = repositoryTribunal;
             _repositoryMateria = repositoryMateria;
             _repositoryCarrera = repositoryCarrera;
+            _infoDocenteRepository = infoDocenteRepository;
             _docenteXTribunalesRepository = docenteXTribunalesRepository;
             _materiasxcarreraRepository = materiasxcarreraRepository;
         }
@@ -94,6 +98,27 @@ namespace Alumnos.Service.Repositories.Docente
             }
             catch (Exception ex)
             {
+                throw new Exception(ex.ToString());
+            }
+        }
+
+        public async Task<InfoDocenteModels> GetInfoDocente(int legajo)
+        {
+            try
+            {
+                InfoDocenteModels infoDocente = new InfoDocenteModels();
+
+                DocenteTotalAlumnosModel totalAlumnosModel = await _infoDocenteRepository.GetTotalAlumnosPorDocenteAsync(legajo);
+                DocentePromedioNotasModel docentePromedioNotas = await _infoDocenteRepository.GetDocentePromedioNotasAsync(legajo);
+                DocenteTotalMateriasModel docenteTotalMaterias= await _infoDocenteRepository.GetTotalMateriasPorDocenteAsync(legajo);
+
+                infoDocente.AlumnosTotales = totalAlumnosModel.TotalAlumnos;
+                infoDocente.PromedioNotas = docentePromedioNotas.PromedioNotas;
+                infoDocente.MateriaInscriptas = docenteTotalMaterias.TotalMaterias;
+
+                return infoDocente;
+            }
+            catch (Exception ex) { 
                 throw new Exception(ex.ToString());
             }
         }

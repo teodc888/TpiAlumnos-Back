@@ -29,6 +29,21 @@ namespace Alumnos.WebApi.Controllers
             }
         }
 
+        [HttpGet("info")]
+        public async Task<IActionResult> GetInfoDocente([FromQuery] int legajo)
+        {
+            try
+            {
+                var docente = await _docenteServiceRepository.GetInfoDocente(legajo);
+
+                return Ok(docente);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+        }
+
         [HttpGet("tribunal")]
         public async Task<IActionResult> GetDocenteXTribunal([FromQuery] int legajo)
         {
