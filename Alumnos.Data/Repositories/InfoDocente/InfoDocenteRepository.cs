@@ -18,6 +18,91 @@ namespace Alumnos.Data.Repositories.InfoDocente
             _context = context;
         }
 
+        public async Task<DocenteAlumnosRiesgo> GetAlumnosRiesgo(int legajo)
+        {
+            try
+            {
+                var result = await (from d in _context.Docentes
+                                    join mxc in _context.Materiasxcarreras on d.Legajo equals mxc.DocenteACargo
+                                    join mxcurs in _context.MateriasXCursados on mxc.Id equals mxcurs.Materiaxcarrera
+                                    join curs in _context.Cursadas on mxcurs.Id equals curs.MateriaCursada
+                                    join exc in _context.ExamenesXCursada on curs.Id equals exc.Cursada
+                                    join e in _context.Examenes on exc.Examen equals e.Id
+                                    join ic in _context.InscripcionACursados on curs.Id equals ic.Id
+                                    join a in _context.Alumnos on ic.Alumno equals a.Legajo
+                                    where e.Nota < 4 && d.Legajo == legajo
+                                    group a by d.Legajo into docenteGroup
+                                    select new DocenteAlumnosRiesgo
+                                    {
+                                        Legajo = docenteGroup.Key,
+                                        AlumnosRiesgo = docenteGroup.Count()
+                                    }).FirstOrDefaultAsync();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error retrieving at-risk students for docente: " + ex.Message);
+            }
+        }
+
+        public async Task<List<DocenteDistriEdad>> GetDocenteDistriEdad(int legajo)
+        {
+            try
+            {
+                var result = await (from d in _context.Docentes
+                                    join mxc in _context.Materiasxcarreras on d.Legajo equals mxc.DocenteACargo
+                                    join maxc in _context.MateriasXCursados on mxc.Id equals maxc.Materiaxcarrera
+                                    join c in _context.Cursadas on maxc.Id equals c.MateriaCursada
+                                    join ic in _context.InscripcionACursados on c.Id equals ic.Id
+                                    join a in _context.Alumnos on ic.Alumno equals a.Legajo
+                                    where d.Legajo == legajo && a.FechaNac.HasValue // Filtrar por el legajo del docente
+                                    group a by new
+                                    {
+                                        d.Legajo,
+                                        Edad = (DateTime.Now.Year - a.FechaNac.Value.Year) // Calcula la edad
+                                    } into grupo
+                                    select new DocenteDistriEdad
+                                    {
+                                        LegajoDocente = grupo.Key.Legajo,
+                                        Edad = grupo.Key.Edad,
+                                        CantidadAlumnos = grupo.Count()
+                                    }).ToListAsync();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error retrieving age distribution: " + ex.Message);
+            }
+        }
+
+        public async Task<List<DocenteEstadoAlumnos>> GetDocenteEstadoAlumnos(int legajo)
+        {
+            try
+            {
+                var resultados = await (from d in _context.Docentes
+                                        join mxc in _context.Materiasxcarreras on d.Legajo equals mxc.DocenteACargo
+                                        join maxc in _context.MateriasXCursados on mxc.Id equals maxc.Materiaxcarrera
+                                        join c in _context.Cursadas on maxc.Id equals c.MateriaCursada
+                                        join em in _context.EstadosMaterias on c.EstadoMateria equals em.Id
+                                        where d.Legajo == legajo
+                                        group em by em.EstadoMateria into grupo
+                                        select new DocenteEstadoAlumnos
+                                        {
+                                            LegajoDocente = legajo,
+                                            EstadoMateria = grupo.Key,
+                                            Cantidad = grupo.Count() // Contamos cuántos alumnos están en cada estado
+                                        }).ToListAsync();
+
+                return resultados;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al obtener el estado de alumnos por docente: " + ex.Message);
+            }
+        }
+
         public async Task<DocentePromedioNotasModel> GetDocentePromedioNotasAsync(int docenteId)
         {
             try
@@ -44,7 +129,7 @@ namespace Alumnos.Data.Repositories.InfoDocente
             }
         }
 
-        public async Task<DocenteTotalAlumnosModel> GetTotalAlumnosPorDocenteAsync(int docenteId)
+        public async Task<DocenteTotalAlumnosModel> GetTotalAlumnosPorDocenteAsync(int legajo)
         {
             try
             {
@@ -53,7 +138,7 @@ namespace Alumnos.Data.Repositories.InfoDocente
                                     join maxc in _context.MateriasXCursados on mxc.Id equals maxc.Materiaxcarrera
                                     join iac in _context.InscripcionACursados on maxc.InscripCursado equals iac.Id
                                     join a in _context.Alumnos on iac.Alumno equals a.Legajo
-                                    where d.Legajo == docenteId
+                                    where d.Legajo == legajo
                                     group a by d.Legajo into docenteGroup
                                     select new DocenteTotalAlumnosModel
                                     {
@@ -69,14 +154,14 @@ namespace Alumnos.Data.Repositories.InfoDocente
             }
         }
 
-        public async Task<DocenteTotalMateriasModel> GetTotalMateriasPorDocenteAsync(int docenteId)
+        public async Task<DocenteTotalMateriasModel> GetTotalMateriasPorDocenteAsync(int legajo)
         {
             try
             {
                 var result = await (from d in _context.Docentes
                                     join mxc in _context.Materiasxcarreras on d.Legajo equals mxc.DocenteACargo
                                     join m in _context.Materias on mxc.Materia equals m.Id
-                                    where d.Legajo == docenteId
+                                    where d.Legajo == legajo
                                     group m by d.Legajo into docenteGroup
                                     select new DocenteTotalMateriasModel
                                     {

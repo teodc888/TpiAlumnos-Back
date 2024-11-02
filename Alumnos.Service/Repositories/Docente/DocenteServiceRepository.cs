@@ -110,15 +110,26 @@ namespace Alumnos.Service.Repositories.Docente
 
                 DocenteTotalAlumnosModel totalAlumnosModel = await _infoDocenteRepository.GetTotalAlumnosPorDocenteAsync(legajo);
                 DocentePromedioNotasModel docentePromedioNotas = await _infoDocenteRepository.GetDocentePromedioNotasAsync(legajo);
-                DocenteTotalMateriasModel docenteTotalMaterias= await _infoDocenteRepository.GetTotalMateriasPorDocenteAsync(legajo);
+                DocenteTotalMateriasModel docenteTotalMaterias = await _infoDocenteRepository.GetTotalMateriasPorDocenteAsync(legajo);
+                DocenteAlumnosRiesgo docenteAlumnosRiesgo = await _infoDocenteRepository.GetAlumnosRiesgo(legajo);
+                List<DocenteEstadoAlumnos> docenteEstadoAlumnos = await _infoDocenteRepository.GetDocenteEstadoAlumnos(legajo);
+                List<DocenteDistriEdad> docenteDistriEdads = await _infoDocenteRepository.GetDocenteDistriEdad(legajo);
+
 
                 infoDocente.AlumnosTotales = totalAlumnosModel.TotalAlumnos;
                 infoDocente.PromedioNotas = docentePromedioNotas.PromedioNotas;
                 infoDocente.MateriaInscriptas = docenteTotalMaterias.TotalMaterias;
+                infoDocente.AlumnosEnRiesgo = docenteAlumnosRiesgo.AlumnosRiesgo;
+                infoDocente.estadoAlumnos = docenteEstadoAlumnos;
+                infoDocente.GetDocenteDistriEdad = docenteDistriEdads;
+
+
+
 
                 return infoDocente;
             }
-            catch (Exception ex) { 
+            catch (Exception ex)
+            {
                 throw new Exception(ex.ToString());
             }
         }
