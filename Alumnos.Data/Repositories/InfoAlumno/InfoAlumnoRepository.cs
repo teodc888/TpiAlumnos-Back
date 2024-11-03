@@ -22,23 +22,23 @@ namespace Alumnos.Data.Repositories.Carrera
         {
             try
             {
-                var result = await (from ic in _context.InscripcionACarreras
-                                    join c in _context.Carreras on ic.Carrera equals c.Id
-                                    join mc in _context.Materiasxcarreras on ic.Carrera equals mc.Carrera
-                                    join ma in _context.Materias on mc.Materia equals ma.Id
-                                    join tm in _context.TiposMaterias on ma.TipoMateria equals tm.Id
-                                    join mxc in _context.MateriasXCursados on mc.Id equals mxc.Materiaxcarrera
-                                    join iac in _context.InscripcionACursados on mxc.InscripCursado equals iac.Id
-                                    where ic.Alumno == legajo
+                var result = await (from a in _context.Alumnos
+                                    join iac in _context.InscripcionACursados on a.Legajo equals iac.Alumno
+                                    join mxc in _context.MateriasXCursados on iac.Id equals mxc.InscripCursado
+                                    join mx in _context.Materiasxcarreras on mxc.Materiaxcarrera equals mx.Id
+                                    join m in _context.Materias on mx.Materia equals m.Id
+                                    join c in _context.Carreras on mx.Carrera equals c.Id
+                                    join tm in _context.TiposMaterias on m.TipoMateria equals tm.Id
+                                    where a.Legajo == legajo
                                     select new InfoAlumnoModels
                                     {
-                                        Legajo = ic.Alumno,
-                                        Carrera = c.Carrera1,
-                                        Materia = ma.Materia1,
-                                        TipoMateria = tm.TipoMateria,
+                                        Legajo = a.Legajo,
+                                        Carrera = c.Carrera1, 
+                                        Materia = m.Materia1, 
+                                        TipoMateria = tm.TipoMateria, 
                                         FechaInscripcionCursado = iac.Fecha.ToString("dd/MM/yyyy"),
-                                        FechaInscripcionMateria = ic.Fecha.ToString("dd/MM/yyyy")
-                                    }).ToListAsync();
+                                        FechaInscripcionMateria = iac.Fecha.ToString("dd/MM/yyyy")
+                                    }).Distinct().ToListAsync();
 
                 return result;
             }
@@ -47,6 +47,8 @@ namespace Alumnos.Data.Repositories.Carrera
                 throw new Exception("Error retrieving Carrera Info: " + ex.Message);
             }
         }
+
+
 
         public async Task<List<InfoAlumnoNotasModls>> GetCarreraNotasInfoAsync(int legajo)
         {

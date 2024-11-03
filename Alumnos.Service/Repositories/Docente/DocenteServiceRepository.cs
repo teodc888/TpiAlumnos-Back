@@ -62,7 +62,6 @@ namespace Alumnos.Service.Repositories.Docente
             _inscripcionACarreraRepository = inscripcionACarreraRepository;
             _alumnoServiceRepository = alumnoServiceRepository;
         }
-
         public async Task<DocenteModels> GetDocente(int legajo)
         {
             try
@@ -200,6 +199,28 @@ namespace Alumnos.Service.Repositories.Docente
                 return lstMateria;
             }
             catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+        }
+
+        public async Task<bool> EditarMateria(int legajo, int Nota, int Materia)
+        {
+            try
+            {
+                //Materia materia1 = await _repositoryMateria.GetByIdAsync(Materia);
+
+                //if(materia1 == null)
+                //{
+                //    throw new Exception("Materia no encontrada");
+                //}
+
+                //Data.Data.Alumno alumno = await _re
+
+                return true;
+
+            }
+            catch(Exception ex)
             {
                 throw new Exception(ex.ToString());
             }

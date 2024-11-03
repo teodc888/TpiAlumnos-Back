@@ -73,5 +73,20 @@ namespace Alumnos.WebApi.Controllers
                 throw new Exception(ex.ToString());
             }
         }
+
+        [HttpPut("materia/editar")]
+        public async Task<IActionResult> editNotaMateria([FromQuery] int legajo)
+        {
+            try
+            {
+                var docente = await _docenteServiceRepository.GetMateriaDocente(legajo);
+
+                return Ok(docente);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+        }
     }
 }
