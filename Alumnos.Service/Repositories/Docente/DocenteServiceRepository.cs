@@ -114,17 +114,15 @@ namespace Alumnos.Service.Repositories.Docente
                 DocenteAlumnosRiesgo docenteAlumnosRiesgo = await _infoDocenteRepository.GetAlumnosRiesgo(legajo);
                 List<DocenteEstadoAlumnos> docenteEstadoAlumnos = await _infoDocenteRepository.GetDocenteEstadoAlumnos(legajo);
                 List<DocenteDistriEdad> docenteDistriEdads = await _infoDocenteRepository.GetDocenteDistriEdad(legajo);
+                DocenteMateriasPromedioModel docenteMateriasPromedioModels = await _infoDocenteRepository.GetMejorYPeorPromedioMateriasPorDocenteAsync(legajo);
 
-
-                infoDocente.AlumnosTotales = totalAlumnosModel.TotalAlumnos;
-                infoDocente.PromedioNotas = docentePromedioNotas.PromedioNotas;
-                infoDocente.MateriaInscriptas = docenteTotalMaterias.TotalMaterias;
-                infoDocente.AlumnosEnRiesgo = docenteAlumnosRiesgo.AlumnosRiesgo;
+                infoDocente.AlumnosTotales = totalAlumnosModel?.TotalAlumnos == null ? 0 : totalAlumnosModel.TotalAlumnos;
+                infoDocente.PromedioNotas = docentePromedioNotas?.PromedioNotas == null ? 0 : docentePromedioNotas.PromedioNotas;
+                infoDocente.MateriaInscriptas = docenteTotalMaterias?.TotalMaterias == null ? 0 : docenteTotalMaterias.TotalMaterias;
+                infoDocente.AlumnosEnRiesgo = docenteAlumnosRiesgo?.AlumnosRiesgo == null ? 0 : docenteAlumnosRiesgo.AlumnosRiesgo;
                 infoDocente.estadoAlumnos = docenteEstadoAlumnos;
                 infoDocente.GetDocenteDistriEdad = docenteDistriEdads;
-
-
-
+                infoDocente.DocenteMateriasPromedio = docenteMateriasPromedioModels;
 
                 return infoDocente;
             }

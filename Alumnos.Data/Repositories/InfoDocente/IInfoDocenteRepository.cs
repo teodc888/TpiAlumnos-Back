@@ -12,11 +12,11 @@ namespace Alumnos.Data.Repositories.InfoDocente
         Task<DocentePromedioNotasModel> GetDocentePromedioNotasAsync(int docente);
         Task<DocenteTotalAlumnosModel> GetTotalAlumnosPorDocenteAsync(int docente);
         Task<DocenteTotalMateriasModel> GetTotalMateriasPorDocenteAsync(int docenteId);
-
         Task<DocenteAlumnosRiesgo> GetAlumnosRiesgo(int legajo);
         Task<List<DocenteEstadoAlumnos>> GetDocenteEstadoAlumnos(int legajo);
-        
         Task <List<DocenteDistriEdad>> GetDocenteDistriEdad(int legajo);
-       
+        Task<DocenteMateriasPromedioModel> GetMejorYPeorPromedioMateriasPorDocenteAsync(int legajo);
+
+
     }
 }

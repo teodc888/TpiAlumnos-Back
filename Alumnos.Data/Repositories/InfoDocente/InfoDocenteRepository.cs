@@ -176,5 +176,48 @@ namespace Alumnos.Data.Repositories.InfoDocente
                 throw new Exception("Error retrieving total subjects for docente: " + ex.Message);
             }
         }
+        public async Task<DocenteMateriasPromedioModel> GetMejorYPeorPromedioMateriasPorDocenteAsync(int docenteId)
+        {
+            try
+            {
+                var promedioMaterias = from d in _context.Docentes
+                                       join mxc in _context.Materiasxcarreras on d.Legajo equals mxc.DocenteACargo
+                                       join m in _context.Materias on mxc.Materia equals m.Id
+                                       join maxc in _context.MateriasXCursados on mxc.Id equals maxc.Materiaxcarrera
+                                       join c in _context.Cursadas on maxc.Id equals c.MateriaCursada
+                                       join exc in _context.ExamenesXCursada on c.Id equals exc.Cursada
+                                       join e in _context.Examenes on exc.Examen equals e.Id
+                                       where d.Legajo == docenteId
+                                       group e by new { d.Legajo, m.Materia1 } into docenteMateriaGroup
+                                       select new MateriaPromedioModel
+                                       {
+                                           Legajo = docenteMateriaGroup.Key.Legajo,
+                                           Materia = docenteMateriaGroup.Key.Materia1,
+                                           PromedioNotas = docenteMateriaGroup.Average(x => x.Nota)
+                                       };
+
+                var mejoresMaterias = await promedioMaterias
+                    .OrderByDescending(x => x.PromedioNotas)
+                    .Take(2)
+                    .ToListAsync();
+
+                var peoresMaterias = await promedioMaterias
+                    .OrderBy(x => x.PromedioNotas)
+                    .Take(2)
+                    .ToListAsync();
+
+                return new DocenteMateriasPromedioModel
+                {
+                    Legajo = docenteId,
+                    MejoresMaterias = mejoresMaterias,
+                    PeoresMaterias = peoresMaterias
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error retrieving best and worst average grades for docente: " + ex.Message);
+            }
+        }
+
     }
 }
