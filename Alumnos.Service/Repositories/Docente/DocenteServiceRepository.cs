@@ -3,6 +3,7 @@ using Alumnos.Data.Repositories.Class;
 using Alumnos.Data.Repositories.GenericRepository;
 using Alumnos.Data.Repositories.InfoDocente;
 using Alumnos.Model.Models;
+using Alumnos.Service.Repositories.Alumno;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,8 +25,10 @@ namespace Alumnos.Service.Repositories.Docente
         private readonly IGenericRepository<Materia> _repositoryMateria;
         private readonly IGenericRepository<Data.Data.Carrera> _repositoryCarrera;
         private readonly IInfoDocenteRepository _infoDocenteRepository;
+        private readonly IAlumnoServiceRepository _alumnoServiceRepository;
         private readonly DocenteXTribunalesRepository _docenteXTribunalesRepository;
         private readonly MateriasxcarreraRepository _materiasxcarreraRepository;
+        private readonly InscripcionACarreraRepository _inscripcionACarreraRepository;
         public DocenteServiceRepository(
             IGenericRepository<Data.Data.Docente> repositoryDocente,
             IGenericRepository<Localidade> repositoryLocalidate,
@@ -38,8 +41,10 @@ namespace Alumnos.Service.Repositories.Docente
             IGenericRepository<Materia> repositoryMateria,
             IGenericRepository<Data.Data.Carrera> repositoryCarrera,
             IInfoDocenteRepository infoDocenteRepository,
+            IAlumnoServiceRepository alumnoServiceRepository,
             DocenteXTribunalesRepository docenteXTribunalesRepository,
-            MateriasxcarreraRepository materiasxcarreraRepository)
+            MateriasxcarreraRepository materiasxcarreraRepository,
+            InscripcionACarreraRepository inscripcionACarreraRepository)
         {
             _repositoryDocente = repositoryDocente;
             _repositoryLocalidate = repositoryLocalidate;
@@ -54,6 +59,8 @@ namespace Alumnos.Service.Repositories.Docente
             _infoDocenteRepository = infoDocenteRepository;
             _docenteXTribunalesRepository = docenteXTribunalesRepository;
             _materiasxcarreraRepository = materiasxcarreraRepository;
+            _inscripcionACarreraRepository = inscripcionACarreraRepository;
+            _alumnoServiceRepository = alumnoServiceRepository;
         }
 
         public async Task<DocenteModels> GetDocente(int legajo)
@@ -152,6 +159,40 @@ namespace Alumnos.Service.Repositories.Docente
 
                     Materia materia = await _repositoryMateria.GetByIdAsync(materiasxcarrera.Materia);
                     materiaModels.Materia = materia.Materia1;
+
+                    List<InscripcionACarrera> lstInscripcionACarrera = await _inscripcionACarreraRepository.GetInscripcionCarreraCarreraAsync(materia.Id);
+
+                    List<AlumnoMateriaModels> listAlumno = new List<AlumnoMateriaModels>();
+                    foreach (InscripcionACarrera inscripcionACarrera in lstInscripcionACarrera)
+                    {
+                        AlumnoMateriaModels alumnoModels = new AlumnoMateriaModels();
+
+                        AlumnoModels alumno = await _alumnoServiceRepository.GetAlumnoNombreAsync(inscripcionACarrera.Alumno);
+                        alumnoModels.Legajo = alumno.Legajo;
+                        alumnoModels.Nombre = alumno.Nombre;
+                        alumnoModels.Apellido = alumno.Apellido;
+
+                        List<InfoAlumnoNotasModls> listInfoAlumnoNotas = await _alumnoServiceRepository.GetAlumnoInfoNotaAsync(inscripcionACarrera.Alumno);
+
+                        alumnoModels.ListNota = new List<NotaMateria>();
+
+                        foreach (InfoAlumnoNotasModls infoAlumnoNotasModls in listInfoAlumnoNotas)
+                        {
+                            NotaMateria notaMateria = new NotaMateria();
+
+                            if (materia.Materia1 == infoAlumnoNotasModls.Materia)
+                            {
+                                notaMateria.Materia = infoAlumnoNotasModls.Materia;
+                                notaMateria.Nota = infoAlumnoNotasModls.Nota;
+
+                                alumnoModels.ListNota.Add(notaMateria);
+                            }
+                        }
+
+
+                        listAlumno.Add(alumnoModels);
+                    }
+                    materiaModels.ListAlumno = listAlumno;
 
                     lstMateria.Add(materiaModels);
                 }

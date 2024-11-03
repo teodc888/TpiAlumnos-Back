@@ -13,5 +13,9 @@ namespace Alumnos.Data.Repositories.Class
         {
             return await _dbSet.FirstOrDefaultAsync(p => p.Alumno == legajo);
         }
+        public async Task<List<InscripcionACarrera>> GetInscripcionCarreraCarreraAsync(int carrera)
+        {
+            return await _dbSet.Where(p => p.Carrera == carrera).ToListAsync();
+        }
     }
 }

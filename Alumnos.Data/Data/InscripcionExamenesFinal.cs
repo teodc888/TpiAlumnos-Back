@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Alumnos.Data.Data;
 
@@ -15,7 +16,9 @@ public partial class InscripcionExamenesFinal
 
     public string? Codigo { get; set; }
 
+    [JsonIgnore]
     public virtual Cursada CursadaNavigation { get; set; } = null!;
 
+    [JsonIgnore]
     public virtual ICollection<Examene> Examenes { get; set; } = new List<Examene>();
 }

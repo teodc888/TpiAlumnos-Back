@@ -8,9 +8,8 @@ namespace Alumnos.Service.Repositories.Alumno
         Task<AlumnoModels> GetAlumnoNombreAsync(int legajo);
         Task<List<InfoAlumnoModels>> GetAlumnoInfoAsync(int legajo);
         Task<List<InfoAlumnoNotasModls>> GetAlumnoInfoNotaAsync(int legajo);
-
-
-        Task InscribirAlumnoEnExamenFinalAsync(int legajo, string nombre, string apellido, int idMateria, DateTime fechaInscripcion);
+        Task InscribirAlumnoEnExamenFinalAsync(int legajo, string nombreMateria, DateTime fechaInscripcion);
+        Task<List<InscripcionExamenFinalModels>> GetExamenFinal(int legajo);
 
     }
 }

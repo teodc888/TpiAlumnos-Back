@@ -13,6 +13,6 @@ namespace Alumnos.Service.Repositories.Docente
         Task<InfoDocenteModels> GetInfoDocente(int legajo);
         Task<List<TribunalModels>> GetTribunalDocente(int legajo);
         Task<List<MateriaModels>> GetMateriaDocente(int legajo);
-     
+
     }
 }

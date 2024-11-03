@@ -1,4 +1,5 @@
-﻿using Alumnos.Service.Repositories.Alumno;
+﻿using Alumnos.Model.Models;
+using Alumnos.Service.Repositories.Alumno;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Alumnos.WebApi.Controllers
@@ -56,14 +57,13 @@ namespace Alumnos.WebApi.Controllers
             }
         }
 
-        //////////////////////////////////////////////////////////////////////////
-        [HttpPost("inscribir")]
-        public async Task<IActionResult> InscribirAlumnoEnExamenFinal([FromBody] InscripcionRequest request)
+        [HttpGet("examen/final")]
+        public async Task<IActionResult> GetInscripcionExamenFinal([FromQuery] int legajo)
         {
             try
             {
-                await _repository.InscribirAlumnoEnExamenFinalAsync(request.Legajo, request.Nombre, request.Apellido, request.IdMateria, request.FechaInscripcion);
-                return Ok("Inscripción exitosa.");
+                var response = await _repository.GetExamenFinal(legajo);
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -71,13 +71,18 @@ namespace Alumnos.WebApi.Controllers
             }
         }
 
-        public class InscripcionRequest
+        [HttpPost("inscribir")]
+        public async Task<IActionResult> InscribirAlumnoEnExamenFinal([FromBody] InscripcionRequestModels request)
         {
-            public int Legajo { get; set; }
-            public string Nombre { get; set; }
-            public string Apellido { get; set; }
-            public int IdMateria { get; set; }
-            public DateTime FechaInscripcion { get; set; }
+            try
+            {
+                await _repository.InscribirAlumnoEnExamenFinalAsync(request.Legajo, request.NombreMateria, request.FechaInscripcion);
+                return Ok("Inscripción exitosa.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error al inscribir al alumno: {ex.Message}");
+            }
         }
     }
 }
