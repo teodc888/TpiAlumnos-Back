@@ -3,6 +3,7 @@ using Alumnos.Data.Repositories.GenericRepository;
 using Alumnos.Model.Models;
 using Alumnos.Service.Repositories.Carrera;
 using Alumnos.Service.Validation;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -21,6 +22,15 @@ namespace Alumnos.Service.Repositories.Alumno
         private readonly ICarreraServiceRepository _carreraServiceRepository;
         private readonly AlumnoValidation alumnoValidation;
 
+
+        //
+        private readonly IGenericRepository<InscripcionExamenesFinal> _repositoryInscripcionExamenFinal;
+        private readonly IGenericRepository<InscripcionACursado> _repositoryIncripcionCursado;
+        private readonly IGenericRepository<MateriasXCursado> _repositoryMateriasCursado;
+        private readonly IGenericRepository<EstadosMateria> _repositoryEstadoMateria;
+        private readonly IGenericRepository<Cursada> _repositoryCursada;
+        //
+
         public AlumnoServiceRepository(
             IGenericRepository<Data.Data.Alumno> repository,
             IGenericRepository<Localidade> repositoryLocalidate,
@@ -29,9 +39,28 @@ namespace Alumnos.Service.Repositories.Alumno
             IGenericRepository<SituacionLaboral> repositorySituacionLaboral,
             IGenericRepository<Genero> repositoryGenero,
             IGenericRepository<TiposDoc> repositoryTipoDoc,
-            ICarreraServiceRepository carreraServiceRepository)
+            ICarreraServiceRepository carreraServiceRepository,
+
+
+            //
+            IGenericRepository<InscripcionExamenesFinal> repositoryInscripcionExamenFinal,// Repositorio de Inscripciones
+            IGenericRepository<InscripcionACursado> repositoryIncripcionCursado,
+            IGenericRepository<MateriasXCursado> repositoryMateriasCursado,
+            IGenericRepository<EstadosMateria> repositoryEstadoMateria,
+            IGenericRepository<Cursada> repositoryCursada
+            //
+            )
         {
             _repositoryAlumno = repository;
+
+            //
+            _repositoryInscripcionExamenFinal = repositoryInscripcionExamenFinal;
+            _repositoryIncripcionCursado = repositoryIncripcionCursado;
+            _repositoryMateriasCursado = repositoryMateriasCursado;
+            _repositoryEstadoMateria = repositoryEstadoMateria;
+            _repositoryCursada = repositoryCursada;
+            //
+
             alumnoValidation = new AlumnoValidation();
             _repositoryLocalidate = repositoryLocalidate;
             _repositoryEstadoCivil = repositoryEstadoCivil;
@@ -40,6 +69,7 @@ namespace Alumnos.Service.Repositories.Alumno
             _repositoryGenero = repositoryGenero;
             _repositoryTipoDoc = repositoryTipoDoc;
             _carreraServiceRepository = carreraServiceRepository;
+
         }
 
         public async Task<AlumnoModels> GetAlumnoNombreAsync(int legajo)
@@ -142,6 +172,45 @@ namespace Alumnos.Service.Repositories.Alumno
         public async Task<List<Data.Data.Alumno>> GetAlumnosAsync()
         {
             return (List<Data.Data.Alumno>)await _repositoryAlumno.GetAllAsync();
+        }
+
+        public async Task InscribirAlumnoEnExamenFinalAsync(int legajo, string nombre, string apellido, int idMateria, DateTime fechaInscripcion)
+        {
+            // 1. Obtener al alumno usando su legajo
+            var alumnoInscripto = await _repositoryAlumno.GetByIdAsync(legajo);
+            if (alumnoInscripto == null)
+            {
+                throw new Exception("El alumno no existe.");
+            }
+
+            // 2. Obtener la inscripción a cursado del alumno
+            var inscripcionACursado = await _repositoryIncripcionCursado.GetAllAsync();
+            var cursadoEncontrado = inscripcionACursado.FirstOrDefault(ic => ic.Alumno == legajo);
+            if (cursadoEncontrado == null)
+            {
+                throw new Exception("No se encontró inscripción a cursado para el alumno.");
+            }
+
+            // 3. Verificar que el alumno esté inscripto en la materia para la cual se quiere inscribir al examen
+            var materiasXCursado = await _repositoryMateriasCursado.GetAllAsync();
+            var materiaXCursada = materiasXCursado.FirstOrDefault(m => m.InscripCursado == cursadoEncontrado.Id && m.Materiaxcarrera == idMateria);
+            if (materiaXCursada == null)
+            {
+                throw new Exception("El alumno no está inscripto en esta materia.");
+            }
+
+            // 4. Crear la nueva inscripción al examen final
+            var inscripcionExamen = new InscripcionExamenesFinal
+            {
+                Fecha = DateOnly.FromDateTime(fechaInscripcion),
+                Hora = TimeOnly.FromDateTime(DateTime.Now), // Ajusta según tus requerimientos
+                Cursada = materiaXCursada.InscripCursado.Value, // Asegúrate de que InscripCursado no sea nulo
+                Codigo = $"{legajo}-{idMateria}-{DateTime.Now.Ticks}" // Un código único, ajusta según tu lógica
+            };
+
+            // 5. Insertar la inscripción en el repositorio
+            await _repositoryInscripcionExamenFinal.InsertAsync(inscripcionExamen);
+            await _repositoryInscripcionExamenFinal.SaveAsync();
         }
     }
 }

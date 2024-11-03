@@ -17,6 +17,6 @@ namespace Alumnos.Data.Repositories.InfoDocente
         Task<List<DocenteEstadoAlumnos>> GetDocenteEstadoAlumnos(int legajo);
         
         Task <List<DocenteDistriEdad>> GetDocenteDistriEdad(int legajo);
-        /**/
+       
     }
 }

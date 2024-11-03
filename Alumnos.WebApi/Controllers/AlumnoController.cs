@@ -55,5 +55,30 @@ namespace Alumnos.WebApi.Controllers
                 return BadRequest(ex.ToString());
             }
         }
+
+        //////////////////////////////////////////////////////////////////////////
+        [HttpPost("inscribir")]
+        public async Task<IActionResult> InscribirAlumnoEnExamenFinal([FromBody] InscripcionRequest request)
+        {
+            try
+            {
+                await _repository.InscribirAlumnoEnExamenFinalAsync(request.Legajo, request.Nombre, request.Apellido, request.IdMateria, request.FechaInscripcion);
+                return Ok("Inscripción exitosa.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error al inscribir al alumno: {ex.Message}");
+            }
+        }
+
+        public class InscripcionRequest
+        {
+            public int Legajo { get; set; }
+            public string Nombre { get; set; }
+            public string Apellido { get; set; }
+            public int IdMateria { get; set; }
+            public DateTime FechaInscripcion { get; set; }
+        }
     }
 }
+
