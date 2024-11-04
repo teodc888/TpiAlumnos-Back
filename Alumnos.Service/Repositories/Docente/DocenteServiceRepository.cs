@@ -24,6 +24,15 @@ namespace Alumnos.Service.Repositories.Docente
         private readonly IGenericRepository<Tribunale> _repositoryTribunal;
         private readonly IGenericRepository<Materia> _repositoryMateria;
         private readonly IGenericRepository<Data.Data.Carrera> _repositoryCarrera;
+        private readonly IGenericRepository<Data.Data.Alumno> _repositoryAlumno;
+        private readonly IGenericRepository<InscripcionACursado> _repositoryInscripcionACursado;
+        private readonly IGenericRepository<MateriasXCursado> _repositoryMateriasXCursado;
+        private readonly IGenericRepository<Cursada> _repositoryCursada;
+        private readonly IGenericRepository<ExamenesXCursadum> _repositoryExamenesXCursadum;
+        private readonly IGenericRepository<Examene> _repositoryExamene;
+        private readonly IGenericRepository<EstadosExamene> _repositoryEstadosExamene;
+        private readonly IGenericRepository<InscripcionACarrera> _repositoryInscripcionACarrera;
+        private readonly IGenericRepository<Materiasxcarrera> _repositoryMateriasxcarrera;
         private readonly IInfoDocenteRepository _infoDocenteRepository;
         private readonly IAlumnoServiceRepository _alumnoServiceRepository;
         private readonly DocenteXTribunalesRepository _docenteXTribunalesRepository;
@@ -40,6 +49,15 @@ namespace Alumnos.Service.Repositories.Docente
             IGenericRepository<Tribunale> repositoryTribunal,
             IGenericRepository<Materia> repositoryMateria,
             IGenericRepository<Data.Data.Carrera> repositoryCarrera,
+            IGenericRepository<Data.Data.Alumno> repositoryAlumno,
+            IGenericRepository<InscripcionACursado> inscripcionACursado,
+            IGenericRepository<MateriasXCursado> repositoryMateriasXCursado,
+            IGenericRepository<Cursada> repositoryCursada,
+            IGenericRepository<ExamenesXCursadum> repositoryExamenesXCursadum,
+            IGenericRepository<Examene> repositoryExamene,
+            IGenericRepository<EstadosExamene> repositoryEstadosExamene,
+            IGenericRepository<InscripcionACarrera> repositoryInscripcionACarrera,
+            IGenericRepository<Materiasxcarrera> repositoryMateriasxcarrera,
             IInfoDocenteRepository infoDocenteRepository,
             IAlumnoServiceRepository alumnoServiceRepository,
             DocenteXTribunalesRepository docenteXTribunalesRepository,
@@ -61,6 +79,15 @@ namespace Alumnos.Service.Repositories.Docente
             _materiasxcarreraRepository = materiasxcarreraRepository;
             _inscripcionACarreraRepository = inscripcionACarreraRepository;
             _alumnoServiceRepository = alumnoServiceRepository;
+            _repositoryAlumno = repositoryAlumno;
+            _repositoryInscripcionACursado = inscripcionACursado;
+            _repositoryMateriasXCursado = repositoryMateriasXCursado;
+            _repositoryCursada = repositoryCursada;
+            _repositoryExamenesXCursadum = repositoryExamenesXCursadum;
+            _repositoryExamene = repositoryExamene;
+            _repositoryEstadosExamene = repositoryEstadosExamene;
+            _repositoryInscripcionACarrera = repositoryInscripcionACarrera;
+            _repositoryMateriasxcarrera = repositoryMateriasxcarrera;
         }
         public async Task<DocenteModels> GetDocente(int legajo)
         {
@@ -159,7 +186,7 @@ namespace Alumnos.Service.Repositories.Docente
                     Materia materia = await _repositoryMateria.GetByIdAsync(materiasxcarrera.Materia);
                     materiaModels.Materia = materia.Materia1;
 
-                    List<InscripcionACarrera> lstInscripcionACarrera = await _inscripcionACarreraRepository.GetInscripcionCarreraCarreraAsync(materia.Id);
+                    List<InscripcionACarrera> lstInscripcionACarrera = await _inscripcionACarreraRepository.GetInscripcionCarreraCarreraAsync(carrera.Id);
 
                     List<AlumnoMateriaModels> listAlumno = new List<AlumnoMateriaModels>();
                     foreach (InscripcionACarrera inscripcionACarrera in lstInscripcionACarrera)
@@ -188,7 +215,6 @@ namespace Alumnos.Service.Repositories.Docente
                             }
                         }
 
-
                         listAlumno.Add(alumnoModels);
                     }
                     materiaModels.ListAlumno = listAlumno;
@@ -204,18 +230,63 @@ namespace Alumnos.Service.Repositories.Docente
             }
         }
 
-        public async Task<bool> EditarMateria(int legajo, int Nota, int Materia)
+        public async Task<bool> EditarMateria(int legajo, int Nota, string Materia)
         {
             try
             {
-                //Materia materia1 = await _repositoryMateria.GetByIdAsync(Materia);
+                var ListMateria1 = await _repositoryMateria.GetAllAsync();
+                Materia materia1 = ListMateria1.FirstOrDefault(x => x.Materia1 == Materia);
 
-                //if(materia1 == null)
-                //{
-                //    throw new Exception("Materia no encontrada");
-                //}
+                if (materia1 == null)
+                {
+                    throw new Exception("Materia no encontrada");
+                }
 
-                //Data.Data.Alumno alumno = await _re
+                Data.Data.Alumno alumno = await _repositoryAlumno.GetByIdAsync(legajo);
+
+                if (alumno == null)
+                {
+                    throw new Exception("alumno no encontrada");
+                }
+
+                var listInscripcionACursado = await _repositoryInscripcionACursado.GetAllAsync();
+                InscripcionACursado inscripcionACursado = listInscripcionACursado.FirstOrDefault(x => x.Alumno == alumno.Legajo);
+
+                var Listmateriasxcarrera = await _materiasxcarreraRepository.GetAllAsync();
+                Materiasxcarrera materiasxcarrera = Listmateriasxcarrera.FirstOrDefault(x => x.Materia == materia1.Id);
+
+                var ListMateriaXCursado = await _repositoryMateriasXCursado.GetAllAsync();
+                MateriasXCursado materiasXCursado = ListMateriaXCursado.FirstOrDefault(x => x.Materiaxcarrera == materiasxcarrera.Id && x.InscripCursado == inscripcionACursado.Id);
+
+                var ListCursada = await _repositoryCursada.GetAllAsync();
+                Cursada cursada = ListCursada.FirstOrDefault(x => x.MateriaCursada == materiasXCursado.Id);
+
+                var ListExamenesXCursadum = await _repositoryExamenesXCursadum.GetAllAsync();
+                ExamenesXCursadum examenesXCursadum = ListExamenesXCursadum.FirstOrDefault(x => x.Cursada == cursada.Id);
+
+                Examene examene = await _repositoryExamene.GetByIdAsync(examenesXCursadum.Examen);
+                examene.Nota = Nota;
+
+                var ListEstadosExamene = await _repositoryEstadosExamene.GetAllAsync();
+
+                if (Nota < 6)
+                {
+                    examene.EstadoExamen = ListEstadosExamene.FirstOrDefault(x => x.EstadoExamen == "DESAPROBADO").Id;
+                }
+                else
+                {
+                    examene.EstadoExamen = ListEstadosExamene.FirstOrDefault(x => x.EstadoExamen == "APROBADO").Id;
+                }
+
+                try
+                {
+                    await _repositoryExamene.UpdateAsync(examene);
+                    await _repositoryExamene.SaveAsync();
+                }
+                catch(Exception ex)
+                {
+                    throw new Exception(ex.ToString());
+                }
 
                 return true;
 
@@ -262,5 +333,141 @@ namespace Alumnos.Service.Repositories.Docente
                 throw new Exception(ex.ToString());
             }
         }
+
+        public async Task<bool> InsertAlumoMateria(InsertAlumnoMateria insertAlumnoMateria)
+        {
+            try
+            {
+                DateTime dateTime = DateTime.Now;
+
+                DateOnly dateOnly = DateOnly.FromDateTime(dateTime);
+
+                Data.Data.Alumno alumno = await _repositoryAlumno.GetByIdAsync(insertAlumnoMateria.LegajoAlumno);
+
+                if (alumno == null)
+                {
+                    throw new Exception("Alumno no existed");
+                }
+
+                Data.Data.Docente docente = await _repositoryDocente.GetByIdAsync(insertAlumnoMateria.LegajoDocente);
+
+                if (docente == null)
+                {
+                    throw new Exception("Alumno no existed");
+                }
+
+                var ListMateria = await _repositoryMateria.GetAllAsync();
+                Materia materia = ListMateria.FirstOrDefault(x => x.Materia1 == insertAlumnoMateria.NombreMateria);
+                if (materia == null)
+                {
+                    throw new Exception("Alumno no existed");
+                }
+
+                var ListVerificarIAC = await _repositoryInscripcionACursado.GetAllAsync();
+                InscripcionACursado verificarIac = ListVerificarIAC.FirstOrDefault(x => x.Alumno == alumno.Legajo);
+
+                var ListMXC = await _repositoryMateriasXCursado.GetAllAsync();
+                MateriasXCursado verificarMxc = ListMXC.FirstOrDefault(x => x.InscripCursado == verificarIac.Id);
+
+                Materiasxcarrera verificarMc = await _repositoryMateriasxcarrera.GetByIdAsync(verificarMxc.Materiaxcarrera);
+
+                Materia verificarMateria = await _repositoryMateria.GetByIdAsync(verificarMc.Materia);
+
+                if(verificarMateria == materia)
+                {
+                    throw new Exception("ya tiene registrada la materia");
+                }
+
+
+
+                var ListInscripcionACarrera = await _inscripcionACarreraRepository.GetAllAsync();
+                InscripcionACarrera inscripcionACarrera = ListInscripcionACarrera.FirstOrDefault(x => x.Alumno == alumno.Legajo);
+
+                InscripcionACursado inscripcionACursado = new InscripcionACursado();
+                inscripcionACursado.Fecha = dateOnly;
+                inscripcionACursado.Alumno = alumno.Legajo;
+                inscripcionACursado.InscripCarrer = inscripcionACarrera.Id;
+
+                int idInscripcionACursado = 0;
+                try
+                {
+                    idInscripcionACursado =  await _repositoryInscripcionACursado.InsertAsyncReturnId(inscripcionACursado);
+                }
+                catch(Exception ex)
+                {
+                    throw new Exception(ex.ToString());
+                }
+
+                Materiasxcarrera materiasxcarrera = new Materiasxcarrera();
+                materiasxcarrera.DocenteACargo = docente.Legajo;
+                materiasxcarrera.Materia = materia.Id;
+                materiasxcarrera.Carrera = inscripcionACarrera.Id;
+
+                int idMateriaCarrera = 0;
+                try
+                {
+                    idMateriaCarrera = await _repositoryMateriasxcarrera.InsertAsyncReturnId(materiasxcarrera);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.ToString());
+                }
+
+                MateriasXCursado materiasXCursado = new MateriasXCursado();
+                materiasXCursado.InscripCursado = idInscripcionACursado;
+                materiasXCursado.Materiaxcarrera = idMateriaCarrera;
+
+                int idMateriaXCursado = 0;
+                try
+                {
+                    idMateriaXCursado = await _repositoryMateriasXCursado.InsertAsyncReturnId(materiasXCursado);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.ToString());
+                }
+
+                return true;
+            }catch(Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+        }
+
+        public async Task<GetAlumnosMateria> GetAlumnosMateria()
+        {
+            try
+            {
+                GetAlumnosMateria getAlumnosMateria = new GetAlumnosMateria();
+                var alumnos = await _repositoryAlumno.GetAllAsync();
+                var materias = await _repositoryMateria.GetAllAsync();
+
+                List<AlumnosGet> Alumnos = new List<AlumnosGet>();
+                foreach (Data.Data.Alumno alumno in alumnos)
+                {
+                    AlumnosGet alumnosGet = new AlumnosGet();
+                    alumnosGet.Nombre = alumno.Legajo;
+
+                    Alumnos.Add(alumnosGet);
+                }
+
+                List<MateriaGet> Materias = new List<MateriaGet>();
+                foreach (Data.Data.Materia materia in materias)
+                {
+                    MateriaGet materiaGet = new MateriaGet();
+                    materiaGet.Nombre = materia.Materia1;
+
+                    Materias.Add(materiaGet);
+                }
+                getAlumnosMateria.Alumnos = Alumnos;
+                getAlumnosMateria.Materias = Materias;
+
+                return getAlumnosMateria;
+            }
+            catch (Exception ex) {
+                throw new Exception(ex.ToString());
+            }
+        }
+
     }
 }

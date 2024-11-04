@@ -48,4 +48,12 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         await _context.SaveChangesAsync();
     }
+
+    public async Task<int> InsertAsyncReturnId(T entity)
+    {
+        await _dbSet.AddAsync(entity);
+        await _context.SaveChangesAsync();
+
+        return (int)typeof(T).GetProperty("Id").GetValue(entity);
+    }
 }

@@ -1,4 +1,5 @@
-﻿using Alumnos.Service.Repositories.Docente;
+﻿using Alumnos.Model.Models;
+using Alumnos.Service.Repositories.Docente;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -74,14 +75,44 @@ namespace Alumnos.WebApi.Controllers
             }
         }
 
-        [HttpPut("materia/editar")]
-        public async Task<IActionResult> editNotaMateria([FromQuery] int legajo)
+        [HttpGet("info/materiasAndAlumnos")]
+        public async Task<IActionResult> GetMateriaAlumnos()
         {
             try
             {
-                var docente = await _docenteServiceRepository.GetMateriaDocente(legajo);
+                var response = await _docenteServiceRepository.GetAlumnosMateria();
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+        }
+
+        [HttpPut("materia/editar")]
+        public async Task<IActionResult> editNotaMateria([FromQuery] EditarNotaModels editarNotaModels)
+        {
+            try
+            {
+                var docente = await _docenteServiceRepository.EditarMateria(editarNotaModels.Legajo, editarNotaModels.Nota, editarNotaModels.Materia);
 
                 return Ok(docente);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+        }
+
+        [HttpPost("alumno/materia")]
+        public async Task<IActionResult> insertAlumnoMateria([FromQuery] InsertAlumnoMateria editarNotaModels)
+        {
+            try
+            {
+                var docente = await _docenteServiceRepository.InsertAlumoMateria(editarNotaModels);
+
+                return Ok("");
             }
             catch (Exception ex)
             {
