@@ -1,4 +1,5 @@
 ﻿using Alumnos.Data.Data;
+using Alumnos.Model;
 using Alumnos.Model.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -218,6 +219,44 @@ namespace Alumnos.Data.Repositories.InfoDocente
                 throw new Exception("Error retrieving best and worst average grades for docente: " + ex.Message);
             }
         }
+
+        public async Task<List<GetInscripcionAlumno>> GetInscripcionAlumno(int legajoDocente)
+        {
+            try
+            {
+                var result = await (from a in _context.Alumnos
+                                    join iac in _context.InscripcionACursados on a.Legajo equals iac.Alumno
+                                    join mxc in _context.MateriasXCursados on iac.Id equals mxc.InscripCursado
+                                    join mx in _context.Materiasxcarreras on mxc.Materiaxcarrera equals mx.Id
+                                    join ca in _context.Carreras on mx.Carrera equals ca.Id
+                                    join m in _context.Materias on mx.Materia equals m.Id
+                                    join cu in _context.Cursadas on mxc.Id equals cu.MateriaCursada
+                                    join exc in _context.ExamenesXCursada on cu.Id equals exc.Cursada
+                                    join ex in _context.Examenes on exc.Examen equals ex.Id
+                                    where mx.DocenteACargo == legajoDocente
+                                    orderby m.Materia1
+                                    select new GetInscripcionAlumno
+                                    {
+                                        Alumno = a.Legajo,
+                                        Nombre = a.Nombre,
+                                        Apellido = a.Apellido,
+                                        Materia = m.Materia1,
+                                        Docente = (int)mx.DocenteACargo,
+                                        Nota = ex.Nota,
+                                        Carrera = ca.Carrera1,
+                                        Anio = (int)ca.AnioPlan
+                                    }).ToListAsync();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error retrieving enrollment data for docente: " + ex.Message);
+            }
+        }
+
+
+
 
     }
 }

@@ -1,4 +1,5 @@
-﻿using Alumnos.Model.Models;
+﻿using Alumnos.Model;
+using Alumnos.Model.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,7 @@ namespace Alumnos.Data.Repositories.InfoDocente
         Task<List<DocenteEstadoAlumnos>> GetDocenteEstadoAlumnos(int legajo);
         Task <List<DocenteDistriEdad>> GetDocenteDistriEdad(int legajo);
         Task<DocenteMateriasPromedioModel> GetMejorYPeorPromedioMateriasPorDocenteAsync(int legajo);
+        Task<List<GetInscripcionAlumno>> GetInscripcionAlumno(int legajoDocente);
 
 
     }

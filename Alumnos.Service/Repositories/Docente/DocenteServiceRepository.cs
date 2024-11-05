@@ -2,6 +2,7 @@
 using Alumnos.Data.Repositories.Class;
 using Alumnos.Data.Repositories.GenericRepository;
 using Alumnos.Data.Repositories.InfoDocente;
+using Alumnos.Model;
 using Alumnos.Model.Models;
 using Alumnos.Service.Repositories.Alumno;
 using System;
@@ -168,61 +169,32 @@ namespace Alumnos.Service.Repositories.Docente
         public async Task<List<MateriaModels>> GetMateriaDocente(int legajo)
         {
             try
-            {
-                List<MateriaModels> lstMateria = new List<MateriaModels>();
+            {   
+                var inscripciones = await _infoDocenteRepository.GetInscripcionAlumno(legajo);
 
-                List<Materiasxcarrera> lstMateriaxCarrera = await _materiasxcarreraRepository.GetByMateriaXCarreraIdLegajoAsync(legajo);
-
-                foreach (Materiasxcarrera materiasxcarrera in lstMateriaxCarrera)
-                {
-                    MateriaModels materiaModels = new MateriaModels();
-
-                    materiaModels.Legajo = legajo;
-
-                    Data.Data.Carrera carrera = await _repositoryCarrera.GetByIdAsync(materiasxcarrera.Carrera);
-                    materiaModels.Carrera = carrera.Carrera1;
-                    materiaModels.AnioPlan = carrera.AnioPlan;
-
-                    Materia materia = await _repositoryMateria.GetByIdAsync(materiasxcarrera.Materia);
-                    materiaModels.Materia = materia.Materia1;
-
-                    List<InscripcionACarrera> lstInscripcionACarrera = await _inscripcionACarreraRepository.GetInscripcionCarreraCarreraAsync(carrera.Id);
-
-                    List<AlumnoMateriaModels> listAlumno = new List<AlumnoMateriaModels>();
-                    foreach (InscripcionACarrera inscripcionACarrera in lstInscripcionACarrera)
+                var materias = inscripciones
+                    .GroupBy(i => new { i.Materia, i.Carrera, i.Anio })
+                    .Select(g => new MateriaModels
                     {
-                        AlumnoMateriaModels alumnoModels = new AlumnoMateriaModels();
+                        Legajo = legajo,
+                        Materia = g.Key.Materia,
+                        Carrera = g.Key.Carrera,
+                        AnioPlan = g.Key.Anio,
+                        ListAlumno = g.GroupBy(i => new { i.Alumno, i.Nombre, i.Apellido })
+                                      .Select(a => new AlumnoMateriaModels
+                                      {
+                                          Legajo = a.Key.Alumno,
+                                          Nombre = a.Key.Nombre,
+                                          Apellido = a.Key.Apellido,
+                                          ListNota = a.Select(n => new NotaMateria
+                                          {
+                                              Materia = g.Key.Materia,
+                                              Nota = n.Nota.ToString()
+                                          }).ToList()
+                                      }).ToList()
+                    }).ToList();
 
-                        AlumnoModels alumno = await _alumnoServiceRepository.GetAlumnoNombreAsync(inscripcionACarrera.Alumno);
-                        alumnoModels.Legajo = alumno.Legajo;
-                        alumnoModels.Nombre = alumno.Nombre;
-                        alumnoModels.Apellido = alumno.Apellido;
-
-                        List<InfoAlumnoNotasModls> listInfoAlumnoNotas = await _alumnoServiceRepository.GetAlumnoInfoNotaAsync(inscripcionACarrera.Alumno);
-
-                        alumnoModels.ListNota = new List<NotaMateria>();
-
-                        foreach (InfoAlumnoNotasModls infoAlumnoNotasModls in listInfoAlumnoNotas)
-                        {
-                            NotaMateria notaMateria = new NotaMateria();
-
-                            if (materia.Materia1 == infoAlumnoNotasModls.Materia)
-                            {
-                                notaMateria.Materia = infoAlumnoNotasModls.Materia;
-                                notaMateria.Nota = infoAlumnoNotasModls.Nota;
-
-                                alumnoModels.ListNota.Add(notaMateria);
-                            }
-                        }
-
-                        listAlumno.Add(alumnoModels);
-                    }
-                    materiaModels.ListAlumno = listAlumno;
-
-                    lstMateria.Add(materiaModels);
-                }
-
-                return lstMateria;
+                return materias;
             }
             catch (Exception ex)
             {
@@ -362,23 +334,6 @@ namespace Alumnos.Service.Repositories.Docente
                 {
                     throw new Exception("Alumno no existed");
                 }
-
-                var ListVerificarIAC = await _repositoryInscripcionACursado.GetAllAsync();
-                InscripcionACursado verificarIac = ListVerificarIAC.FirstOrDefault(x => x.Alumno == alumno.Legajo);
-
-                var ListMXC = await _repositoryMateriasXCursado.GetAllAsync();
-                MateriasXCursado verificarMxc = ListMXC.FirstOrDefault(x => x.InscripCursado == verificarIac.Id);
-
-                Materiasxcarrera verificarMc = await _repositoryMateriasxcarrera.GetByIdAsync(verificarMxc.Materiaxcarrera);
-
-                Materia verificarMateria = await _repositoryMateria.GetByIdAsync(verificarMc.Materia);
-
-                if(verificarMateria == materia)
-                {
-                    throw new Exception("ya tiene registrada la materia");
-                }
-
-
 
                 var ListInscripcionACarrera = await _inscripcionACarreraRepository.GetAllAsync();
                 InscripcionACarrera inscripcionACarrera = ListInscripcionACarrera.FirstOrDefault(x => x.Alumno == alumno.Legajo);
