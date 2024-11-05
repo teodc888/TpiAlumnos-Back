@@ -18,6 +18,7 @@ namespace Alumnos.Data.Repositories.InfoDocente
         Task <List<DocenteDistriEdad>> GetDocenteDistriEdad(int legajo);
         Task<DocenteMateriasPromedioModel> GetMejorYPeorPromedioMateriasPorDocenteAsync(int legajo);
         Task<List<GetInscripcionAlumno>> GetInscripcionAlumno(int legajoDocente);
+        Task<List<GetInscripcion>> GetInscripcion(int legajoDocente);
 
 
     }

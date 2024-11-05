@@ -75,6 +75,21 @@ namespace Alumnos.WebApi.Controllers
             }
         }
 
+        [HttpGet("materia/only")]
+        public async Task<IActionResult> GetDocenteXMateriaOnly([FromQuery] int legajo)
+        {
+            try
+            {
+                var docente = await _docenteServiceRepository.GetMateriaDocenteOnly(legajo);
+
+                return Ok(docente);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+        }
+
         [HttpGet("info/materiasAndAlumnos")]
         public async Task<IActionResult> GetMateriaAlumnos()
         {

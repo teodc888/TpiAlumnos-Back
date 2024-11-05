@@ -202,6 +202,42 @@ namespace Alumnos.Service.Repositories.Docente
             }
         }
 
+
+        public async Task<List<MateriaModels>> GetMateriaDocenteOnly(int legajo)
+        {
+            try
+            {
+                var inscripciones = await _infoDocenteRepository.GetInscripcion(legajo);
+
+                var materias = inscripciones
+                    .GroupBy(i => new { i.Materia, i.Carrera, i.AnioPlan })
+                    .Select(g => new MateriaModels
+                    {
+                        Legajo = legajo,
+                        Materia = g.Key.Materia,
+                        Carrera = g.Key.Carrera,
+                        AnioPlan = g.Key.AnioPlan,
+                        ListAlumno = g.GroupBy(i => new { i.Alumno, i.Nombre, i.Apellido })
+                                      .Select(a => new AlumnoMateriaModels
+                                      {
+                                          Legajo = a.Key.Alumno,
+                                          Nombre = a.Key.Nombre,
+                                          Apellido = a.Key.Apellido,
+                                          ListNota = a.Select(n => new NotaMateria
+                                          {
+                                              Materia = g.Key.Materia             
+                                          }).ToList()
+                                      }).ToList()
+                    }).ToList();
+
+                return materias;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+        }
+
         public async Task<bool> EditarMateria(int legajo, int Nota, string Materia)
         {
             try
@@ -356,7 +392,7 @@ namespace Alumnos.Service.Repositories.Docente
                 Materiasxcarrera materiasxcarrera = new Materiasxcarrera();
                 materiasxcarrera.DocenteACargo = docente.Legajo;
                 materiasxcarrera.Materia = materia.Id;
-                materiasxcarrera.Carrera = inscripcionACarrera.Carrera;
+                materiasxcarrera.Carrera = 1;
 
                 int idMateriaCarrera = 0;
                 try
