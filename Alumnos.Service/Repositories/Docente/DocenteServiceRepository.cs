@@ -253,7 +253,7 @@ namespace Alumnos.Service.Repositories.Docente
                 InscripcionACursado inscripcionACursado = listInscripcionACursado.FirstOrDefault(x => x.Alumno == alumno.Legajo);
 
                 var Listmateriasxcarrera = await _materiasxcarreraRepository.GetAllAsync();
-                Materiasxcarrera materiasxcarrera = Listmateriasxcarrera.FirstOrDefault(x => x.Materia == materia1.Id);
+                Materiasxcarrera materiasxcarrera = Listmateriasxcarrera.FirstOrDefault(x => x.Materia == materia1.Id && x.Carrera == 1);
 
                 var ListMateriaXCursado = await _repositoryMateriasXCursado.GetAllAsync();
                 MateriasXCursado materiasXCursado = ListMateriaXCursado.FirstOrDefault(x => x.Materiaxcarrera == materiasxcarrera.Id && x.InscripCursado == inscripcionACursado.Id);
@@ -401,7 +401,7 @@ namespace Alumnos.Service.Repositories.Docente
                 Materiasxcarrera materiasxcarrera = new Materiasxcarrera();
                 materiasxcarrera.DocenteACargo = docente.Legajo;
                 materiasxcarrera.Materia = materia.Id;
-                materiasxcarrera.Carrera = inscripcionACarrera.Id;
+                materiasxcarrera.Carrera = inscripcionACarrera.Carrera;
 
                 int idMateriaCarrera = 0;
                 try
