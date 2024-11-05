@@ -194,7 +194,7 @@ namespace Alumnos.Service.Repositories.Alumno
             }
 
             var Listmateriasxcarrera = await _repositoryMateriasxcarrera.GetAllAsync();
-            Materiasxcarrera materiasxcarrera = Listmateriasxcarrera.FirstOrDefault(x => x.Materia == materia.Id);
+            Materiasxcarrera materiasxcarrera = Listmateriasxcarrera.FirstOrDefault(x => x.Materia == materia.Id && x.Carrera == 1);
 
             if (materiasxcarrera == null)
             {
