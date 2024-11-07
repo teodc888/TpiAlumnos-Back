@@ -31,7 +31,7 @@ namespace Alumnos.Data.Repositories.InfoDocente
                                     join e in _context.Examenes on exc.Examen equals e.Id
                                     join ic in _context.InscripcionACursados on curs.Id equals ic.Id
                                     join a in _context.Alumnos on ic.Alumno equals a.Legajo
-                                    where e.Nota < 4 && d.Legajo == legajo
+                                    where e.Nota < 6 && d.Legajo == legajo
                                     group a by d.Legajo into docenteGroup
                                     select new DocenteAlumnosRiesgo
                                     {
@@ -54,8 +54,7 @@ namespace Alumnos.Data.Repositories.InfoDocente
                 var result = await (from d in _context.Docentes
                                     join mxc in _context.Materiasxcarreras on d.Legajo equals mxc.DocenteACargo
                                     join maxc in _context.MateriasXCursados on mxc.Id equals maxc.Materiaxcarrera
-                                    join c in _context.Cursadas on maxc.Id equals c.MateriaCursada
-                                    join ic in _context.InscripcionACursados on c.Id equals ic.Id
+                                    join ic in _context.InscripcionACursados on maxc.InscripCursado equals ic.Id
                                     join a in _context.Alumnos on ic.Alumno equals a.Legajo
                                     where d.Legajo == legajo && a.FechaNac.HasValue // Filtrar por el legajo del docente
                                     group a by new
