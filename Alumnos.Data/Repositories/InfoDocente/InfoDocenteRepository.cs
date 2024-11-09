@@ -23,21 +23,22 @@ namespace Alumnos.Data.Repositories.InfoDocente
         {
             try
             {
-                var result = await (from d in _context.Docentes
-                                    join mxc in _context.Materiasxcarreras on d.Legajo equals mxc.DocenteACargo
-                                    join mxcurs in _context.MateriasXCursados on mxc.Id equals mxcurs.Materiaxcarrera
+                var result = await (from a in _context.Alumnos
+                                    join ic in _context.InscripcionACursados on a.Legajo equals ic.Alumno
+                                    join mxcurs in _context.MateriasXCursados on ic.Id equals mxcurs.InscripCursado
+                                    join mxc in _context.Materiasxcarreras on mxcurs.Materiaxcarrera equals mxc.Id
+                                    join d in _context.Docentes on mxc.DocenteACargo equals d.Legajo
                                     join curs in _context.Cursadas on mxcurs.Id equals curs.MateriaCursada
                                     join exc in _context.ExamenesXCursada on curs.Id equals exc.Cursada
                                     join e in _context.Examenes on exc.Examen equals e.Id
-                                    join ic in _context.InscripcionACursados on curs.Id equals ic.Id
-                                    join a in _context.Alumnos on ic.Alumno equals a.Legajo
-                                    where e.Nota < 6 && d.Legajo == legajo
+                                    where e.Nota < 6 && d.Legajo == 2001 // Cambia el legajo por el parámetro si es necesario
                                     group a by d.Legajo into docenteGroup
                                     select new DocenteAlumnosRiesgo
                                     {
                                         Legajo = docenteGroup.Key,
                                         AlumnosRiesgo = docenteGroup.Count()
                                     }).FirstOrDefaultAsync();
+
 
                 return result;
             }
@@ -56,11 +57,11 @@ namespace Alumnos.Data.Repositories.InfoDocente
                                     join maxc in _context.MateriasXCursados on mxc.Id equals maxc.Materiaxcarrera
                                     join ic in _context.InscripcionACursados on maxc.InscripCursado equals ic.Id
                                     join a in _context.Alumnos on ic.Alumno equals a.Legajo
-                                    where d.Legajo == legajo && a.FechaNac.HasValue // Filtrar por el legajo del docente
+                                    where d.Legajo == legajo
                                     group a by new
                                     {
                                         d.Legajo,
-                                        Edad = (DateTime.Now.Year - a.FechaNac.Value.Year) // Calcula la edad
+                                        Edad = (DateTime.Now.Year - a.FechaNac.Value.Year)
                                     } into grupo
                                     select new DocenteDistriEdad
                                     {

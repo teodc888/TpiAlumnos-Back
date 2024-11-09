@@ -11,4 +11,8 @@
     <ProjectReference Include="..\Alumnos.Model\Alumnos.Model.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Customs\" />
+  </ItemGroup>
+
 </Project>

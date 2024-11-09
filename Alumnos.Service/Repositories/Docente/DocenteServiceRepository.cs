@@ -243,7 +243,7 @@ namespace Alumnos.Service.Repositories.Docente
             try
             {
                 var ListMateria1 = await _repositoryMateria.GetAllAsync();
-                Materia materia1 = ListMateria1.FirstOrDefault(x => x.Materia1 == Materia);
+                Materia materia1 = ListMateria1.First(x => x.Materia1 == Materia);
 
                 if (materia1 == null)
                 {
@@ -261,10 +261,20 @@ namespace Alumnos.Service.Repositories.Docente
                 InscripcionACursado inscripcionACursado = listInscripcionACursado.FirstOrDefault(x => x.Alumno == alumno.Legajo);
 
                 var Listmateriasxcarrera = await _materiasxcarreraRepository.GetAllAsync();
-                Materiasxcarrera materiasxcarrera = Listmateriasxcarrera.FirstOrDefault(x => x.Materia == materia1.Id && x.Carrera == 1);
+                List<Materiasxcarrera> materiasxcarrera = Listmateriasxcarrera.Where(x => x.Materia == materia1.Id && x.Carrera == 1).ToList();
 
-                var ListMateriaXCursado = await _repositoryMateriasXCursado.GetAllAsync();
-                MateriasXCursado materiasXCursado = ListMateriaXCursado.FirstOrDefault(x => x.Materiaxcarrera == materiasxcarrera.Id && x.InscripCursado == inscripcionACursado.Id);
+                MateriasXCursado materiasXCursado = new MateriasXCursado();
+
+                foreach (Materiasxcarrera materiasxcarrera1 in materiasxcarrera)
+                {
+                    var ListMateriaXCursado = await _repositoryMateriasXCursado.GetAllAsync();
+                    materiasXCursado = ListMateriaXCursado.FirstOrDefault(x => x.Materiaxcarrera == materiasxcarrera1.Id && x.InscripCursado == inscripcionACursado.Id);
+
+                    if(materiasXCursado != null)
+                    {
+                        break;
+                    }
+                }
 
                 var ListCursada = await _repositoryCursada.GetAllAsync();
                 Cursada cursada = ListCursada.FirstOrDefault(x => x.MateriaCursada == materiasXCursado.Id);

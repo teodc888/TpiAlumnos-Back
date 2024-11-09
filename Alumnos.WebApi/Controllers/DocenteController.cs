@@ -11,8 +11,11 @@ namespace Alumnos.WebApi.Controllers
     {
 
         private readonly IDocenteServiceRepository _docenteServiceRepository;
-        public DocenteController(IDocenteServiceRepository docenteServiceRepository) { 
+
+        public DocenteController(IDocenteServiceRepository docenteServiceRepository)
+        {
             _docenteServiceRepository = docenteServiceRepository;
+
         }
 
         [HttpGet]
@@ -20,7 +23,7 @@ namespace Alumnos.WebApi.Controllers
         {
             try
             {
-               var docente = await _docenteServiceRepository.GetDocente(legajo);
+                var docente = await _docenteServiceRepository.GetDocente(legajo);
 
                 return Ok(docente);
             }
