@@ -6,6 +6,7 @@ namespace Alumnos.WebApi.Controllers
 {
     [ApiController]
     [Route("v1/api/[controller]")]
+    [ExternalTokenValidationAttribute]
     public class AlumnoController : ControllerBase
     {
         private readonly IAlumnoServiceRepository _repository;

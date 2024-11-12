@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 public class ExternalTokenValidationAttribute : Attribute, IAsyncActionFilter
 {
-    private readonly string _validationUrl = "https://localhost:7258/api/v1/Login/Validate";  // URL de la API de validación
+    private readonly string _validationUrl = "https://localhost:7258/api/v1/Login/Validate";  
 
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
@@ -23,7 +23,6 @@ public class ExternalTokenValidationAttribute : Attribute, IAsyncActionFilter
 
         using (var httpClient = new HttpClient())
         {
-            // Preparar los datos en JSON
             var data = new
             {
                 TokenSesion = tokenSesion,
@@ -33,7 +32,6 @@ public class ExternalTokenValidationAttribute : Attribute, IAsyncActionFilter
             var jsonContent = JsonConvert.SerializeObject(data);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-            // Enviar solicitud POST a la API de validación
             var response = await httpClient.PostAsync(_validationUrl, content);
 
             if (!response.IsSuccessStatusCode)
@@ -43,7 +41,6 @@ public class ExternalTokenValidationAttribute : Attribute, IAsyncActionFilter
             }
         }
 
-        // Proceder con la solicitud si el token es válido
         await next();
     }
 }

@@ -7,6 +7,7 @@ namespace Alumnos.WebApi.Controllers
 {
     [ApiController]
     [Route("v1/api/[controller]")]
+    [ExternalTokenValidationAttribute]
     public class DocenteController : ControllerBase
     {
 
